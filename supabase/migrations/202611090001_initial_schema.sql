@@ -115,13 +115,13 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 begin
   insert into public.family_members (group_id, user_id, role)
   values (new.id, new.created_by, 'owner');
   return new;
 end;
-$;
+$$;
 
 create trigger family_groups_add_owner
   after insert on public.family_groups
