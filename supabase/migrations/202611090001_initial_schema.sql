@@ -109,6 +109,24 @@ create table public.family_members (
   primary key (group_id, user_id)
 );
 
+-- Automatically register the creator as the group's owner.
+create or replace function public.add_family_group_owner()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $
+begin
+  insert into public.family_members (group_id, user_id, role)
+  values (new.id, new.created_by, 'owner');
+  return new;
+end;
+$;
+
+create trigger family_groups_add_owner
+  after insert on public.family_groups
+  for each row execute function public.add_family_group_owner();
+
 create table public.family_checkins (
   id uuid primary key default gen_random_uuid(),
   group_id uuid not null,
